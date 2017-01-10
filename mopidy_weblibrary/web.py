@@ -10,7 +10,7 @@ import urlparse
 
 import tornado.web
 
-import mopidy_musicbox_webclient.webclient as mmw
+import mopidy_weblibrary.webclient as mmw
 
 logger = logging.getLogger(__name__)
 
