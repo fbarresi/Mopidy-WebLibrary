@@ -22,6 +22,8 @@ class ExtensionTests(unittest.TestCase):
 
         schema = ext.get_config_schema()
 
+        assert shema is not None
+
     def test_setup(self):
         registry = mock.Mock()
 

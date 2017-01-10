@@ -55,11 +55,6 @@ class IndexHandlerTestMusicBox(BaseTest):
 
         assert '<title>WebLibrary</title>' in body
 
-    def test_initialize_sets_dictionary_objects(self):
-        response = self.fetch('/index.html', method='GET')
-        body = tornado.escape.to_unicode(response.body)
-
-
 
 class IndexHandlerTestMopidy(BaseTest):
 
@@ -70,11 +65,6 @@ class IndexHandlerTestMopidy(BaseTest):
             }
         })
         return tornado.web.Application(extension.factory(self.config, mock.Mock()))
-
-    def test_initialize_sets_dictionary_objects(self):
-        response = self.fetch('/index.html', method='GET')
-        body = tornado.escape.to_unicode(response.body)
-
 
     def test_get_title_mopidy(self):
         response = self.fetch('/index.html', method='GET')

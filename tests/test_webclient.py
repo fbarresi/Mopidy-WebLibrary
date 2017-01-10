@@ -2,8 +2,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import unittest
 
-import mock
-
 import mopidy.config as mopidy_config
 
 from mopidy_weblibrary import Extension
@@ -25,5 +23,3 @@ class WebclientTests(unittest.TestCase):
 
     def test_get_version(self):
         assert self.mmw.get_version() == self.ext.version
-
-    

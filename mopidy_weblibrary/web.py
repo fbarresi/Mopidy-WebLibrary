@@ -5,7 +5,6 @@ import json
 import logging
 import os
 import socket
-import string
 import urlparse
 
 import tornado.web
@@ -45,21 +44,14 @@ class IndexHandler(tornado.web.RequestHandler):
         port = url.port or 80
 
         self.__dict = {
-            'isMusicBox': json.dumps(webclient.is_music_box()),
-            'websocketUrl': webclient.get_websocket_url(self.request),
-            'hasAlarmClock': json.dumps(webclient.has_alarm_clock()),
-            'onTrackClick': webclient.get_default_click_action(),
-            'programName': program_name,
-            'hostname': url.hostname,
-            'serverIP': socket.gethostbyname(url.hostname),
-            'serverPort': port
+            'test': 1
 
         }
         self.__path = path
         self.__title = "WebLibrary"
 
     def get(self, path):
-        return self.render(path, title=self.get_title(), **self.__dict)
+        return self.render(path, title=self.__title, **self.__dict)
 
     def get_title(self):
         url = urlparse.urlparse('%s://%s' % (self.request.protocol, self.request.host))
