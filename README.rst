@@ -2,8 +2,8 @@
 Mopidy-WebLibrary
 *************************
 
-.. image:: https://travis-ci.org/fbarresi/Mopidy-WebLibrary.svg?branch=develop
-	:target: https://travis-ci.org/fbarresi/Mopidy-WebLibrary.svg?branch=develop
+.. image:: https://api.travis-ci.org/fbarresi/Mopidy-WebLibrary.svg
+	:target: https://travis-ci.org/fbarresi/Mopidy-WebLibrary
     :alt: Travis CI build status
 
 Features
