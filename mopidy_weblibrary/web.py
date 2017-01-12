@@ -1,10 +1,8 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 
-import json
 
 import logging
 import os
-import socket
 import urlparse
 
 import tornado.web
@@ -35,13 +33,7 @@ class IndexHandler(tornado.web.RequestHandler):
 
         webclient = mmw.Webclient(config)
 
-        if webclient.is_music_box():
-            program_name = 'MusicBox'
-        else:
-            program_name = 'Mopidy'
-
         url = urlparse.urlparse('%s://%s' % (self.request.protocol, self.request.host))
-        port = url.port or 80
 
         self.__dict = {
             'test': 1

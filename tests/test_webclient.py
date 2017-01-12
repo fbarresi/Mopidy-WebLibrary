@@ -23,3 +23,4 @@ class WebclientTests(unittest.TestCase):
 
     def test_get_version(self):
         assert self.mmw.get_version() == self.ext.version
+        
