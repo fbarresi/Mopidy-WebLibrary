@@ -31,10 +31,6 @@ class IndexHandler(tornado.web.RequestHandler):
 
     def initialize(self, config, path):
 
-        webclient = mmw.Webclient(config)
-
-        url = urlparse.urlparse('%s://%s' % (self.request.protocol, self.request.host))
-
         self.__dict = {
             'test': 1
 
