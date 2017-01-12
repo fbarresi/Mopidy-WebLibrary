@@ -1,0 +1,10 @@
+include .coveragerc
+include .travis.yml
+include AUTHORS
+include LICENSE
+include MANIFEST.in
+include README.rst
+include mopidy_weblibrary/ext.conf
+
+recursive-include mopidy_weblibrary/static *
+recursive-include tests *.py
