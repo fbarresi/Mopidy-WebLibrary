@@ -31,5 +31,6 @@ class Extension(ext.Extension):
         return [
             (r'/upload', UploadHandler, {'config': config}),
             (r'/files', FilesHandler, {'config': config}),
+            (r'/', IndexHandler, {'config': config, 'path': path}),
             (r'/(.*)', IndexHandler, {'config': config, 'path': path})
         ]
