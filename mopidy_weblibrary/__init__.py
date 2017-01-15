@@ -26,7 +26,6 @@ class Extension(ext.Extension):
             'http:app', {'name': self.ext_name, 'factory': self.factory})
 
     def factory(self, config, core):
-        from tornado.web import RedirectHandler
         from .web import IndexHandler, StaticHandler, UploadHandler, FilesHandler
         path = os.path.join(os.path.dirname(__file__), 'static')
         return [
