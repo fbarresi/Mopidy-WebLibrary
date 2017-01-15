@@ -88,10 +88,7 @@ class UploadHandler(tornado.web.RequestHandler):
             'messages': messages
         }
 
-        return self.render(path, **variables_dict)
-
-    def get_template_path(self):
-        return self.__path
+        return None
 
     def get_upload_path(self):
         return self.__upload_path
