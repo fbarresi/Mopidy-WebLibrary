@@ -26,7 +26,7 @@ class Extension(ext.Extension):
             'http:app', {'name': self.ext_name, 'factory': self.factory})
 
     def factory(self, config, core):
-        from .web import IndexHandler, StaticHandler, UploadHandler, FilesHandler
+        from .web import IndexHandler, UploadHandler, FilesHandler
         path = os.path.join(os.path.dirname(__file__), 'static')
         return [
             (r'/upload', UploadHandler, {'config': config}),
