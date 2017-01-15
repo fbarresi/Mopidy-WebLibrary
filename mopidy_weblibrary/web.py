@@ -33,11 +33,12 @@ class IndexHandler(tornado.web.RequestHandler):
         self.__path = path
         self.__title = "WebLibrary"
 
-    def get(self, path):
+    def get(self, path=""):
         return self.render("index.html", title=self.__title, templates=get_javascript_templates())
 
     def get_template_path(self):
         return self.__path
+
 
 def get_javascript_templates():
     return """
@@ -123,7 +124,6 @@ def get_javascript_templates():
         {% } %}
         </script>
         """
-
 
 
 class UploadHandler(tornado.web.RequestHandler):

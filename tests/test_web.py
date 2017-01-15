@@ -8,8 +8,7 @@ import tornado.testing
 import tornado.web
 import tornado.websocket
 
-from mopidy_weblibrary import Extension
-from mopidy_weblibrary.web import StaticHandler
+from mopidy_weblibrary import Extensions
 
 
 class BaseTest(tornado.testing.AsyncHTTPTestCase):
