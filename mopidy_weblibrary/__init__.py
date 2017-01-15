@@ -27,10 +27,10 @@ class Extension(ext.Extension):
 
     def factory(self, config, core):
         from tornado.web import RedirectHandler
-        from .web import IndexHandler, StaticHandler
+        from .web import IndexHandler, StaticHandler, UploadHandler, FilesHandler
         path = os.path.join(os.path.dirname(__file__), 'static')
         return [
-            (r'/', RedirectHandler, {'url': 'index.html'}),
-            (r'/(index.html)', IndexHandler, {'config': config, 'path': path}),
-            (r'/(.*)', StaticHandler, {'path': path})
+            (r'/upload', UploadHandler, {'config': config}),
+            (r'/files', FilesHandler, {'config': config}),
+            (r'/(.*)', IndexHandler, {'config': config, 'path': path})
         ]

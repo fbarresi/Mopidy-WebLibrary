@@ -39,34 +39,21 @@ class IndexHandler(tornado.web.RequestHandler):
         self.__title = "WebLibrary"
 
     def get(self, path):
-        return self.render(path, title=self.__title, **self.__dict)
-
-    def get_title(self):
-        url = urlparse.urlparse('%s://%s' % (self.request.protocol, self.request.host))
-        return self.__title.safe_substitute(hostname=url.hostname)
+        return self.render("index.html", title=self.__title, **self.__dict)
 
     def get_template_path(self):
-        return self.__path
+        return "index.html"
 
 
 class UploadHandler(tornado.web.RequestHandler):
 
-    def initialize(self, config, path):
+    def initialize(self, config):
 
         webclient = mmw.Webclient(config)
 
-        self.__path = path
-
-        self.__upload_path = webclient.get_upload_path()
         self.__can_upload = webclient.has_upload_path()
-        if self.__can_upload:
-            if not self.__upload_path.endswith(os.path.sep):
-                self.__upload_path += os.path.sep
 
-    def get(self, path):
-        return self.render(path, can_upload=self.can_upload(), upload_path=self.__upload_path, has_messages=False)
-
-    def post(self, path):
+    def post(self):
         messages = []
         try:
             if self.can_upload():
@@ -111,3 +98,15 @@ class UploadHandler(tornado.web.RequestHandler):
 
     def can_upload(self):
         return self.__can_upload
+
+
+class FilesHandler(tornado.web.RequestHandler):
+
+    def initialize(self, config):
+        self.__initialized = True
+
+    def get(self, path):
+        return self.__initialized
+
+    def delete(self, path):
+        return self.__initialized
