@@ -26,7 +26,7 @@ class BaseTest(tornado.testing.AsyncHTTPTestCase):
 class StaticFileHandlerTest(BaseTest):
 
     def test_static_handler(self):
-        response = self.fetch('js/vendors/mopidy/mopidy.js', method='GET')
+        response = self.fetch('vendors/mopidy/mopidy.js', method='GET')
 
         assert response.code == 200
 
