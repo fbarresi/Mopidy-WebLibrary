@@ -5,8 +5,9 @@ import logging
 
 import re
 
-import tornado.web
 import urllib
+
+import tornado.web
 
 import mopidy_weblibrary.webclient as mmw
 
