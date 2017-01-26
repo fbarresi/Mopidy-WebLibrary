@@ -1,14 +1,19 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-
-
+import json
 import logging
-import os
-
 import tornado.web
-
+import re
+import urllib
 import mopidy_weblibrary.webclient as mmw
 
 logger = logging.getLogger(__name__)
+
+MIN_FILE_SIZE = 1  # bytes
+MAX_FILE_SIZE = 999000  # bytes
+EXPIRATION_TIME = 300  # seconds
+# If set to None, only allow redirects to the referer protocol+host.
+# Set to a regexp for custom pattern matching against the redirect value:
+REDIRECT_ALLOW_TARGET = None
 
 
 class StaticHandler(tornado.web.StaticFileHandler):
@@ -127,54 +132,83 @@ def get_javascript_templates():
 
 class UploadHandler(tornado.web.RequestHandler):
 
-    def initialize(self, config):
+    def validate(self, file):
+        if file['size'] < MIN_FILE_SIZE:
+            file['error'] = 'File is too small'
+        elif file['size'] > MAX_FILE_SIZE:
+            file['error'] = 'File is too big'
+        else:
+            return True
+        return False
 
-        webclient = mmw.Webclient(config)
+    def validate_redirect(self, redirect):
+        if redirect:
+            redirect_allow_target = ''
+            if REDIRECT_ALLOW_TARGET:
+                return REDIRECT_ALLOW_TARGET.match(redirect)
+            referer = self.request.headers['referer']
+            if referer:
+                from urlparse import urlparse
+                parts = urlparse(referer)
+                redirect_allow_target = '^' + re.escape(
+                    parts.scheme + '://' + parts.netloc + '/'
+                )
+            return re.match(redirect_allow_target, redirect)
+        return False
 
-        self.__can_upload = webclient.has_upload_path()
+    def get_file_size(self, file):
+        file.seek(0, 2)  # Seek to the end of the file
+        size = file.tell()  # Get the position of EOF
+        file.seek(0)  # Reset the file position to the beginning
+        return size
+
+    def write_blob(self, data, info):
+        try:
+            if info['path'] == '':
+                return None
+            key = info['path'].encode('utf-8') + info['name'].encode('utf-8')
+            output_file = open(key, 'wb')
+            output_file.write(data)
+            return key
+        except Exception as e:
+            logger.error('Error during uploading', exception=e)
+            return None
+
+    def handle_upload(self):
+        results = []
+        path = self.get_argument('path', '')
+        for key in self.request.files:
+            for file in self.request.files[key]:
+                result = {}
+                result['path'] = path
+                result['name'] = urllib.unquote(file['filename'])
+                if self.validate(result):
+                    key = self.write_blob(
+                        file['body'],
+                        result
+                    )
+                    if key is not None:
+                        result['url'] = self.request.host_url + '/' + key
+                        result['deleteUrl'] = result['url']
+                        result['deleteType'] = 'DELETE'
+                    else:
+                        result['error'] = 'Failed to store uploaded file.'
+                results.append(result)
+        return results
 
     def post(self):
-        messages = []
-        try:
-            if self.can_upload():
-                subpath = self.get_argument('subpath', '')
-                if not subpath.endswith(os.path.sep):
-                    subpath += os.path.sep
-                if subpath.startswith(os.path.sep):
-                    subpath = subpath[1:]
-
-                if not os.path.exists(self.get_upload_path()+subpath):
-                    messages.append("subdirectory " + subpath + " not exists, it will be created")
-                    os.makedirs(self.get_upload_path()+subpath)
-                absolute_path = self.get_upload_path()+subpath
-
-                for key in self.request.files:
-                    for file in self.request.files[key]:
-                        original_fname = file['filename']
-
-                        output_file = open(absolute_path + original_fname, 'wb')
-                        output_file.write(file['body'])
-                        logger.info("Uploaded file: " + absolute_path + original_fname)
-                        messages.append("file " + original_fname + " was uploaded")
-            else:
-                messages.append("cannot upload... ;( ")
-        except Exception as e:
-            logger.error('Error during uploading music', exception=e)
-            messages.append('An error has occurred! Please retry.')
-        variables_dict = {
-            'can_upload': self.can_upload(),
-            'upload_path': self.__upload_path,
-            'has_messages': True,
-            'messages': messages
-        }
-
-        return variables_dict
-
-    def get_upload_path(self):
-        return self.__upload_path
-
-    def can_upload(self):
-        return self.__can_upload
+        if self.request.get('_method') == 'DELETE':
+            return self.delete()
+        result = {'files': self.handle_upload()}
+        s = json.dumps(result)
+        redirect = self.get_argument('redirect', '')
+        if self.validate_redirect(redirect):
+            return self.redirect(str(
+                redirect.replace('%s', urllib.quote(s, ''), 1)
+            ))
+        if 'application/json' in self.request.headers.get('Accept'):
+            self.add_header('Content-Type', 'application/json')
+        self.write(s)
 
 
 class FilesHandler(tornado.web.RequestHandler):
