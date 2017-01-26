@@ -1,9 +1,13 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
+
 import json
 import logging
-import tornado.web
+
 import re
+
+import tornado.web
 import urllib
+
 import mopidy_weblibrary.webclient as mmw
 
 logger = logging.getLogger(__name__)
