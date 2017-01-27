@@ -180,7 +180,7 @@ class UploadHandler(tornado.web.RequestHandler):
         for key in self.request.files:
             for file in self.request.files[key]:
                 result = {}
-                result['size'] = self.get_file_size(file)
+                result['size'] = self.get_file_size(file['body'])
                 result['path'] = path
                 result['name'] = urllib.unquote(file['filename'])
                 if self.validate(result):
