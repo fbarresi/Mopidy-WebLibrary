@@ -20,6 +20,9 @@ class Webclient(object):
     def get_version(cls):
         return Extension.version
 
-    @property
-    def get_file_config(self):
-        return self.config.get(u'file', {}).get(u'media_dirs', [])
+    def get_media_dirs_config(self):
+        dirs = list(self.config.get(u'file', {}).get(u'media_dirs', []))
+        directories = []
+        for d in dirs:
+            directories.append(d.split("|")[0])
+        return directories

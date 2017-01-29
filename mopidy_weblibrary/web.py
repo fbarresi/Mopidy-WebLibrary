@@ -36,12 +36,20 @@ class IndexHandler(tornado.web.RequestHandler):
     def initialize(self, config, path):
         self.__path = path
         self.__title = "WebLibrary"
-        logger.warn(config.get(u'file', {}).get(u'media_dirs', []))
+        webclient = mmw.Webclient(config)
+        self.__media_dirs = webclient.get_media_dirs_config()
 
     def get(self, template):
         path = self.get_argument('d', '')
+        if path == '':
+            if len(self.__media_dirs) > 0:
+                path = self.__media_dirs[0]
         logger.warn(path)
-        return self.render(template, title=self.__title, templates=get_javascript_templates(), upload_path=path)
+        variables = {
+            'templates': get_javascript_templates(),
+            'upload_path': path
+        }
+        return self.render(template, title=self.__title, **variables)
 
     def get_template_path(self):
         return self.__path
