@@ -37,7 +37,7 @@ class IndexHandler(tornado.web.RequestHandler):
         self.__path = path
         self.__title = "WebLibrary"
 
-    def get(self, path=""):
+    def get(self, media_path=""):
         return self.render("index.html", title=self.__title, templates=get_javascript_templates())
 
     def get_template_path(self):
