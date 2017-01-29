@@ -1,8 +1,8 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
+from os.path import isfile, join
 import json
 import logging
 import os
-from os.path import isfile, join
 import tornado.web
 import sys
 import re
@@ -44,9 +44,7 @@ class IndexHandler(tornado.web.RequestHandler):
 
     def get(self, template):
         path = self.get_argument('d', '')
-        #if path == '':
-        #    if len(self.__media_dirs) > 0:
-        #        path = self.__media_dirs[0]
+
         variables = {
             'templates': get_javascript_templates(),
             'upload_path': path,
@@ -232,6 +230,8 @@ class UploadHandler(tornado.web.RequestHandler):
             file['error'] = 'File is too small'
         elif file['size'] > MAX_FILE_SIZE:
             file['error'] = 'File is too big'
+        elif file['path'] == '':
+            file['error'] = 'No upload folder defined'
         else:
             return True
         return False
