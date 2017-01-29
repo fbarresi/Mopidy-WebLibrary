@@ -189,7 +189,7 @@ class UploadHandler(tornado.web.RequestHandler):
                         result
                     )
                     if key is not None:
-                        result['url'] = self.request.host_url + '/' + key
+                        result['url'] = self.request.host_url + '/files/' + key
                         result['deleteUrl'] = result['url']
                         result['deleteType'] = 'DELETE'
                     else:
