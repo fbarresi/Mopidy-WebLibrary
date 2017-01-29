@@ -30,8 +30,8 @@ class Extension(ext.Extension):
         from .web import IndexHandler, UploadHandler, FilesHandler, StaticHandler
         path = os.path.join(os.path.dirname(__file__), 'static')
         return [
-            (r'/upload', UploadHandler, {'config': config}),
-            (r'/files', FilesHandler, {'config': config}),
+            (r'/upload', UploadHandler),
+            (r'/files', FilesHandler),
             (r'/', RedirectHandler, {'url': 'index.html'}),
             (r'/(index.html)', IndexHandler, {'config': config, 'path': path}),
             (r'/(.*)', StaticHandler, {'path': path})

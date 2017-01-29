@@ -1,7 +1,9 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
 import json
 import logging
+import os
 import tornado.web
+import sys
 import re
 import urllib
 import mopidy_weblibrary.webclient as mmw
@@ -9,7 +11,7 @@ import mopidy_weblibrary.webclient as mmw
 logger = logging.getLogger(__name__)
 
 MIN_FILE_SIZE = 1  # bytes
-MAX_FILE_SIZE = 999000  # bytes
+MAX_FILE_SIZE = 102400000  # bytes
 EXPIRATION_TIME = 300  # seconds
 # If set to None, only allow redirects to the referer protocol+host.
 # Set to a regexp for custom pattern matching against the redirect value:
@@ -44,7 +46,6 @@ class IndexHandler(tornado.web.RequestHandler):
         if path == '':
             if len(self.__media_dirs) > 0:
                 path = self.__media_dirs[0]
-        logger.warn(path)
         variables = {
             'templates': get_javascript_templates(),
             'upload_path': path
@@ -168,16 +169,13 @@ class UploadHandler(tornado.web.RequestHandler):
         return False
 
     def get_file_size(self, file):
-        file.seek(0, 2)  # Seek to the end of the file
-        size = file.tell()  # Get the position of EOF
-        file.seek(0)  # Reset the file position to the beginning
-        return size
+        return sys.getsizeof(file)
 
     def write_blob(self, data, info):
         try:
             if info['path'] == '':
                 return None
-            key = info['path'].encode('utf-8') + info['name'].encode('utf-8')
+            key = info['path'].encode('utf-8') + '/' + info['name'].encode('utf-8')
             output_file = open(key, 'wb')
             output_file.write(data)
             return key
@@ -200,7 +198,7 @@ class UploadHandler(tornado.web.RequestHandler):
                         result
                     )
                     if key is not None:
-                        result['url'] = self.request.host_url + '/files/' + key
+                        result['url'] = 'files?file=' + key
                         result['deleteUrl'] = result['url']
                         result['deleteType'] = 'DELETE'
                     else:
@@ -209,8 +207,6 @@ class UploadHandler(tornado.web.RequestHandler):
         return results
 
     def post(self):
-        if self.request.get('_method') == 'DELETE':
-            return self.delete()
         result = {'files': self.handle_upload()}
         s = json.dumps(result)
         redirect = self.get_argument('redirect', '')
@@ -228,17 +224,24 @@ class FilesHandler(tornado.web.RequestHandler):
     def normalize(self, str):
         return urllib.quote(urllib.unquote(str), '')
 
-    def get(self, file_name):
-
-        data = open(file_name)
+    def get(self):
+        file_name = self.get_argument('file')
+        data = open(file_name, "rb")
         if data is None:
             return self.set_status(404)
+        self.add_header('Content-Type', 'application/octet-stream')
+        self.write(data.read())
 
-        self.write(data)
-
-    def delete(self, file_name):
-        # TODO
-        result = {file_name: True}
+    def delete(self):
+        file_name = self.get_argument('file', '')
+        if file_name != '':
+            os.remove(file_name)
+            result = {file_name.split('/')[-1]: True}
+        else:
+            folder = self.get_argument('folder', '')
+            if folder != '':
+                os.rmdir(folder)
+                result = {folder.split('/')[-1]: True}
 
         if 'application/json' in self.request.headers.get('Accept'):
             self.add_header('Content-Type', 'application/json')
