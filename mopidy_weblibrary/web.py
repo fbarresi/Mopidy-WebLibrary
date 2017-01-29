@@ -214,11 +214,22 @@ class UploadHandler(tornado.web.RequestHandler):
 
 class FilesHandler(tornado.web.RequestHandler):
 
-    def initialize(self, config):
-        self.__initialized = True
+    def normalize(self, str):
+        return urllib.quote(urllib.unquote(str), '')
 
-    def get(self, path):
-        return self.__initialized
+    def get(self, file_name):
 
-    def delete(self, path):
-        return self.__initialized
+        data = open(file_name)
+        if data is None:
+            return self.set_status(404)
+
+        self.write(data)
+
+    def delete(self, file_name):
+        # TODO
+        result = {file_name: True}
+
+        if 'application/json' in self.request.headers.get('Accept'):
+            self.add_header('Content-Type', 'application/json')
+        s = json.dumps(result)
+        self.write(s)
