@@ -20,3 +20,6 @@ class Webclient(object):
     def get_version(cls):
         return Extension.version
 
+    @property
+    def get_file_config(self):
+        return self.config.get(u'file', {}).get(u'media_dirs', [])
