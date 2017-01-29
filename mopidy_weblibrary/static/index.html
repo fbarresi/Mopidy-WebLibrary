@@ -113,7 +113,7 @@
 <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
 <script src="vendors/jquery.ui.widget.js"></script>
 <!-- The Templates plugin is included to render the upload/download listings -->
-<script src="vendors/jquery_fileupload/tmpl.min.js"></script>
+<script src="vendors/jquery_fileupload/tmpl.js"></script>
 <!-- The Load Image plugin is included for the preview images and image resizing functionality -->
 <script src="vendors/jquery_fileupload/load-image.all.min.js"></script>
 <!-- The Canvas to Blob plugin is included for image resizing functionality -->
@@ -144,5 +144,13 @@
 <!--[if (gte IE 8)&(lt IE 10)]>
 <script src="vendors/jquery_fileupload/cors/jquery.xdr-transport.js"></script>
 <![endif]-->
+<script language="javascript" type="text/javascript">
+    var tree = {% raw tree %};
+
+    $(function() {
+        console.log( "ready!" );
+        document.getElementsByTagName("tbody")[0].innerHTML = tmpl("template-tree", tree);
+    });
+</script>
 </body>
 </html>

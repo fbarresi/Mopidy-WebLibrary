@@ -2,6 +2,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import json
 import logging
 import os
+from os.path import isfile, join
 import tornado.web
 import sys
 import re
@@ -43,18 +44,53 @@ class IndexHandler(tornado.web.RequestHandler):
 
     def get(self, template):
         path = self.get_argument('d', '')
-        if path == '':
-            if len(self.__media_dirs) > 0:
-                path = self.__media_dirs[0]
+        #if path == '':
+        #    if len(self.__media_dirs) > 0:
+        #        path = self.__media_dirs[0]
         variables = {
             'templates': get_javascript_templates(),
-            'upload_path': path
+            'upload_path': path,
+            'tree': self.generate_current_tree(path),
         }
         return self.render(template, title=self.__title, **variables)
 
     def get_template_path(self):
         return self.__path
 
+    def generate_current_tree(self, path):
+        three = {'files': []}
+        if path == '':
+            for d in self.__media_dirs:
+                three['files'].append({
+                    'name': d,
+                    'url': 'index.html?d='+d,
+                    'deleteUrl': 'files?folder='+d,
+                    'deleteType': 'DELETE'
+                })
+        else:
+            dirs = [f for f in os.listdir(path) if not isfile(join(path, f))]
+            for d in dirs:
+                three['files'].append({
+                    'name': d,
+                    'url': 'index.html?d=' + join(path, d),
+                    'deleteUrl': 'files?folder=' + join(path, d),
+                    'deleteType': 'DELETE'
+                })
+            three['files'].extend(self.generate_files_tree(path))
+        return json.dumps(three)
+
+    def generate_files_tree(self, path):
+        files_list = []
+        if path != '':
+            files = [f for f in os.listdir(path) if isfile(join(path, f))]
+            for fa in files:
+                files_list.append({
+                    'name': fa,
+                    'url': 'files?file=' + join(path, fa),
+                    'deleteUrl': 'files?file=' + join(path, fa),
+                    'deleteType': 'DELETE'
+                })
+        return files_list
 
 def get_javascript_templates():
     return """
@@ -119,6 +155,53 @@ def get_javascript_templates():
                 </td>
                 <td>
                     <span class="size">{%=o.formatFileSize(file.size)%}</span>
+                </td>
+                <td>
+                    {% if (file.deleteUrl) { %}
+                        <button class="btn btn-danger delete" data-type="{%=file.deleteType%}"
+                        data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %}
+                        data-xhr-fields='{"withCredentials":true}'{% } %}>
+                            <i class="glyphicon glyphicon-trash"></i>
+                            <span>Delete</span>
+                        </button>
+                        <input type="checkbox" name="delete" value="1" class="toggle">
+                    {% } else { %}
+                        <button class="btn btn-warning cancel">
+                            <i class="glyphicon glyphicon-ban-circle"></i>
+                            <span>Cancel</span>
+                        </button>
+                    {% } %}
+                </td>
+            </tr>
+        {% } %}
+        </script>
+
+        <!-- The template to display files and folders -->
+        <script id="template-tree" type="text/x-tmpl">
+        {% for (var i=0, file; file=o.files[i]; i++) { %}
+            <tr class="template-download fade in">
+                <td>
+                    <span class="preview">
+                        {% if (file.thumbnailUrl) { %}
+                            <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery>
+                            <img src="{%=file.thumbnailUrl%}"></a>
+                        {% } %}
+                    </span>
+                </td>
+                <td>
+                    <p class="name">
+                        {% if (file.url) { %}
+                            <a href="{%=file.url%}">{%=file.name%}</a>
+                        {% } else { %}
+                            <span>{%=file.name%}</span>
+                        {% } %}
+                    </p>
+                    {% if (file.error) { %}
+                        <div><span class="label label-danger">Error</span> {%=file.error%}</div>
+                    {% } %}
+                </td>
+                <td>
+                    <span class="size"></span>
                 </td>
                 <td>
                     {% if (file.deleteUrl) { %}
