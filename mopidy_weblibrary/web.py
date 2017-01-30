@@ -3,11 +3,13 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import json
 import logging
 import os
-from os.path import isfile, join
 import re
 import sys
-import tornado.web
 import urllib
+
+from os.path import isfile, join
+
+import tornado.web
 
 import mopidy_weblibrary.webclient as mmw
 
