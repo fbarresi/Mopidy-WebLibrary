@@ -1,12 +1,14 @@
 from __future__ import absolute_import, division, print_function, unicode_literals
-from os.path import isfile, join
+
 import json
 import logging
 import os
-import tornado.web
-import sys
+from os.path import isfile, join
 import re
+import sys
+import tornado.web
 import urllib
+
 import mopidy_weblibrary.webclient as mmw
 
 logger = logging.getLogger(__name__)
@@ -89,6 +91,7 @@ class IndexHandler(tornado.web.RequestHandler):
                     'deleteType': 'DELETE'
                 })
         return files_list
+
 
 def get_javascript_templates():
     return """
