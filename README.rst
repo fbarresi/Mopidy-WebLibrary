@@ -4,11 +4,16 @@ Mopidy-WebLibrary
 
 .. image:: https://travis-ci.org/fbarresi/Mopidy-WebLibrary.svg?branch=develop
     :alt: Travis CI build status
+.. image:: https://badge.fury.io/py/Mopidy-WebLibrary.svg
+    :target: https://badge.fury.io/py/Mopidy-WebLibrary
 
 Features
 ========
 
-//TODO
+- Manage your music library on Mopidy
+- Add and drop music folders
+- Upload new tracks to you library with drag and drop
+- Download your music from Mopidy
 
 Dependencies
 ============
@@ -21,7 +26,7 @@ Installation
 
 Install by running::
 
-    pip install mopidy-weblibrary
+    pip install Mopidy-WebLibrary
 
 
 Alternatively, clone the repository and run ``sudo python setup.py install`` from within the project directory. e.g. ::
@@ -61,5 +66,5 @@ Project resources
 Changelog
 =========
 
-v1.0.0 (UNRELEASED)
+v1.0.0
 -------------------
