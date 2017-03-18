@@ -7,7 +7,7 @@ import re
 import sys
 import urllib
 
-from os.path import isfile, join, exists
+from os.path import exists, isfile, join
 
 import tornado.web
 
