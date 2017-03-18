@@ -7,7 +7,7 @@ import re
 import sys
 import urllib
 
-from os.path import isfile, join
+from os.path import isfile, join, exists
 
 import tornado.web
 
@@ -325,6 +325,16 @@ class FilesHandler(tornado.web.RequestHandler):
             return self.set_status(404)
         self.add_header('Content-Type', 'application/octet-stream')
         self.write(data.read())
+
+    def post(self):
+        path = self.get_argument('parent', '')
+        folder_name = self.get_argument('name', '')
+        if path is not '' and folder_name is not '':
+            full_path = join(path, folder_name)
+            if not exists(full_path):
+                os.mkdir(full_path)
+            return self.finish()
+        return self.set_status(404)
 
     def delete(self):
         file_name = self.get_argument('file', '')
