@@ -48,7 +48,8 @@ class IndexHandler(tornado.web.RequestHandler):
 
     def get(self, template):
         path = self.get_argument('d', '')
-
+        if not self.check_allowed_path(path):
+            path = ''
         variables = {
             'templates': get_javascript_templates(),
             'upload_path': path,
@@ -58,6 +59,12 @@ class IndexHandler(tornado.web.RequestHandler):
 
     def get_template_path(self):
         return self.__path
+
+    def check_allowed_path(self, path):
+        for d in self.__media_dirs:
+            if path.startswith(d):
+                return True
+        return False
 
     def generate_current_tree(self, path):
         three = {'files': []}
@@ -70,6 +77,10 @@ class IndexHandler(tornado.web.RequestHandler):
                     'deleteType': 'DELETE'
                 })
         else:
+            three['files'].append({
+                'name': '..',
+                'url': 'index.html?d=' + os.path.dirname(path),
+            })
             dirs = [f for f in os.listdir(path) if not isfile(join(path, f))]
             for d in dirs:
                 three['files'].append({
@@ -215,11 +226,6 @@ def get_javascript_templates():
                             <span>Delete</span>
                         </button>
                         <input type="checkbox" name="delete" value="1" class="toggle">
-                    {% } else { %}
-                        <button class="btn btn-warning cancel">
-                            <i class="glyphicon glyphicon-ban-circle"></i>
-                            <span>Cancel</span>
-                        </button>
                     {% } %}
                 </td>
             </tr>

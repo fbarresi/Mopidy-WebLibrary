@@ -17,6 +17,7 @@
 <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
 <link rel="stylesheet" href="css/jquery.fileupload.css">
 <link rel="stylesheet" href="css/jquery.fileupload-ui.css">
+<link rel="stylesheet" href="css/jquery-ui.css">
 <!-- CSS adjustments for browsers with JavaScript disabled -->
 <noscript><link rel="stylesheet" href="css/jquery.fileupload-noscript.css"></noscript>
 <noscript><link rel="stylesheet" href="css/jquery.fileupload-ui-noscript.css"></noscript>
@@ -71,7 +72,7 @@
                     <i class="glyphicon glyphicon-trash"></i>
                     <span>Delete</span>
                 </button>
-                <button type="button" class="btn btn-primary start">
+                <button type="button" class="btn btn-primary start" id="create-folder">
                     <i class="glyphicon glyphicon-folder-open"></i>
                     <span>New folder</span>
                 </button>
@@ -105,11 +106,24 @@
     <ol class="indicator"></ol>
 </div>
 
+  <div id="dialog-form" title="Create new folder">
+        <form>
+            <fieldset>
+            <label>Name</label>
+            <input type="text" name="name" id="name" value="New Folder">
+
+            <input type="submit" tabindex="-1" style="position:absolute; top:-1000px">
+            </fieldset>
+        </form>
+  </div>
+
 {% raw templates %}
 <script language="javascript" type="text/javascript">
     var path = "{{upload_path}}";
 </script>
+
 <script src="vendors/jquery/1.12.0/jquery.min.js"></script>
+<script src="vendors/jquery/1.12.0/jquery-ui.js"></script>
 <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
 <script src="vendors/jquery.ui.widget.js"></script>
 <!-- The Templates plugin is included to render the upload/download listings -->
@@ -152,5 +166,41 @@
         document.getElementsByTagName("tbody")[0].innerHTML = tmpl("template-tree", tree);
     });
 </script>
+<script language="javascript" type="text/javascript">
+       $( function() {
+            var dialog, form;
+
+
+            function createNewFolder() {
+                //todo
+                dialog.dialog( "close" );
+
+                return true;
+            }
+            dialog = $( "#dialog-form" ).dialog({
+                autoOpen: false,
+                width: 350,
+                modal: true,
+                buttons: {
+                "Create folder": createNewFolder,
+                Cancel: function() {
+                    dialog.dialog( "close" );
+                }
+            },
+            close: function() {
+                form[ 0 ].reset();
+            }
+            });
+
+            form = dialog.find( "form" ).on( "submit", function( event ) {
+                event.preventDefault();
+                createNewFolder();
+            });
+            $( "#create-folder" ).button().on( "click", function() {
+                dialog.dialog( "open" );
+            });s
+        }
+    );
+  </script>
 </body>
 </html>
