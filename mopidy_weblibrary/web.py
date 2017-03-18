@@ -83,12 +83,15 @@ class IndexHandler(tornado.web.RequestHandler):
             })
             dirs = [f for f in os.listdir(path) if not isfile(join(path, f))]
             for d in dirs:
-                three['files'].append({
+                folder_document = {
                     'name': d,
-                    'url': 'index.html?d=' + join(path, d),
-                    'deleteUrl': 'files?folder=' + join(path, d),
-                    'deleteType': 'DELETE'
-                })
+                    'url': 'index.html?d=' + join(path, d)
+                }
+                inner_files = os.listdir(join(path, d))
+                if len(inner_files) == 0:
+                    folder_document['deleteUrl'] = 'files?folder=' + join(path, d)
+                    folder_document['deleteType'] = 'DELETE'
+                three['files'].append(folder_document)
             three['files'].extend(self.generate_files_tree(path))
         return json.dumps(three)
 
@@ -334,20 +337,30 @@ class FilesHandler(tornado.web.RequestHandler):
             if not exists(full_path):
                 os.mkdir(full_path)
             return self.finish()
-        return self.set_status(404)
+        return self.set_status(500)
 
     def delete(self):
         file_name = self.get_argument('file', '')
         if file_name != '':
-            os.remove(file_name)
-            result = {file_name.split('/')[-1]: True}
+            try:
+                os.remove(file_name)
+                result = {file_name.split('/')[-1]: True}
+            except Exception as e:
+                logger.error(e)
+                self.set_status(500)
+                result = {file_name.split('/')[-1]: False}
         else:
             folder = self.get_argument('folder', '')
             if folder != '':
-                os.rmdir(folder)
-                result = {folder.split('/')[-1]: True}
+                try:
+                    os.rmdir(folder)
+                    result = {folder.split('/')[-1]: True}
+                except Exception as e:
+                    logger.error(e)
+                    self.set_status(500)
+                    result = {folder.split('/')[-1]: False}
 
         if 'application/json' in self.request.headers.get('Accept'):
             self.add_header('Content-Type', 'application/json')
-        s = json.dumps(result)
+        s = json.dumps({'files': [result]})
         self.write(s)
